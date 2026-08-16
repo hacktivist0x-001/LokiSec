@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="24" fill="#060a08"/>
+  <circle cx="64" cy="64" r="50" fill="#0a130f" stroke="#10b981" stroke-width="4"/>
+  <!-- Loki Horns / Shield Glyph -->
+  <path d="M40 35 C40 60, 50 85, 64 95 C78 85, 88 60, 88 35 C76 45, 52 45, 40 35 Z" fill="#d4af37" stroke="#00ff88" stroke-width="2"/>
+  <path d="M64 45 L64 85" stroke="#060a08" stroke-width="3" stroke-linecap="round"/>
+</svg>

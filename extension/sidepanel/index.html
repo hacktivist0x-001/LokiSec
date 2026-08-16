@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LokiSec Audit Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="loki-theme">
+  <!-- Top Bar -->
+  <header class="header-bar">
+    <div class="logo-area">
+      <span class="loki-glyph">⚡</span>
+      <h1 class="logo-text">Loki<span class="highlight">Sec</span></h1>
+      <span class="version-badge">v1.0</span>
+    </div>
+    <div class="header-actions">
+      <button id="btn-refresh-tab" class="icon-btn" title="Sahifani qayta tahlil qilish">🔄</button>
+      <button id="btn-copy-target" class="icon-btn" title="URL nusxalash">📋</button>
+      <button id="btn-clear-logs" class="icon-btn" title="Tozalash">🗑️</button>
+    </div>
+  </header>
+
+  <!-- Target URL Bar -->
+  <section class="target-section">
+    <div class="target-container">
+      <span class="target-indicator"></span>
+      <input type="text" id="target-url-input" class="target-url-display" readonly placeholder="Nishon URL yuklanmoqda...">
+      <span class="pin-tag">TARGET</span>
+    </div>
+  </section>
+
+  <!-- Global Tool Search & API Key Bar -->
+  <section class="search-section">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="tool-search" placeholder="Modullarni qidirish (Recon, JWT, AI, Headers...)...">
+    </div>
+
+    <!-- Gemini AI API Key input accordion -->
+    <details class="api-key-drawer">
+      <summary class="api-key-summary">
+        <span>🔑 Gemini AI API Key Sozlamasi</span>
+        <span id="api-status-badge" class="badge badge-warn">O'rnatilmagan</span>
+      </summary>
+      <div class="api-key-body">
+        <input type="password" id="gemini-api-key" placeholder="AI Studio API kalitingizni kiriting...">
+        <button id="btn-save-key" class="btn btn-primary">Saqlash</button>
+      </div>
+    </details>
+  </section>
+
+  <!-- Main Tools Accordion List (Cyboware Style) -->
+  <main class="tools-container" id="tools-list">
+
+    <!-- 1. LIVE BROWSE & HEADERS AUDIT -->
+    <div class="tool-category open" data-category="live-browse">
+      <div class="category-header">
+        <div class="cat-title">
+          <span class="cat-icon">🛰️</span>
+          <span>LIVE BROWSE & HEADERS</span>
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="category-content">
+        <div class="sub-actions">
+          <button id="btn-audit-headers" class="btn btn-emerald">🛡️ Security Headers Audit</button>
+          <button id="btn-view-cookies" class="btn btn-dark">🍪 Cookie & Storage</button>
+        </div>
+        <div id="headers-output" class="output-panel hidden"></div>
+      </div>
+    </div>
+
+    <!-- 2. SCOPE & NOTES -->
+    <div class="tool-category" data-category="scope-notes">
+      <div class="category-header">
+        <div class="cat-title">
+          <span class="cat-icon">🎯</span>
+          <span>SCOPE & AUDIT NOTES</span>
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="category-content">
+        <textarea id="audit-notes" class="loki-textarea" placeholder="Pentest qaydlari, topilmalar, endpointlar bu yerda saqlanadi (avtomatik saqlanadi)..."></textarea>
+        <div class="sub-actions">
+          <button id="btn-export-notes" class="btn btn-dark">💾 Export .txt</button>
+          <button id="btn-clear-notes" class="btn btn-dark">Tozalash</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. RECON & TECH STACK -->
+    <div class="tool-category" data-category="recon">
+      <div class="category-header">
+        <div class="cat-title">
+          <span class="cat-icon">🔍</span>
+          <span>RECON & TECH STACK</span>
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="category-content">
+        <div class="sub-actions">
+          <button id="btn-detect-tech" class="btn btn-emerald">⚡ Detect Tech Stack</button>
+          <button id="btn-view-comments" class="btn btn-dark">💬 HTML Comments</button>
+        </div>
+        <div id="recon-output" class="output-panel hidden"></div>
+      </div>
+    </div>
+
+    <!-- 4. DISCOVERY & ENDPOINTS -->
+    <div class="tool-category open" data-category="discovery">
+      <div class="category-header">
+        <div class="cat-title">
+          <span class="cat-icon">🕵️</span>
+          <span>DISCOVERY & ENDPOINTS</span>
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="category-content">
+        <div class="sub-actions">
+          <button id="btn-extract-endpoints" class="btn btn-emerald">🔗 Extract API Endpoints</button>
+          <button id="btn-extract-forms" class="btn btn-dark">📝 Form & Hidden Inputs</button>
+          <button id="btn-list-scripts" class="btn btn-dark">📜 JS Files List</button>
+        </div>
+        <div id="discovery-output" class="output-panel hidden"></div>
+      </div>
+    </div>
+
+    <!-- 5. AI SECURITY REVIEWER (GEMINI POWERED) -->
+    <div class="tool-category open" data-category="ai-scanner">
+      <div class="category-header">
+        <div class="cat-title">
+          <span class="cat-icon">🤖</span>
+          <span>AI CODE & ATTACK SURFACE AUDITOR</span>
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="category-content">
+        <p class="section-desc">Sahifadagi barcha JS kodlar, API endpointlar va strukturalarni Gemini AI orqali bir bosishda tahlil qilish.</p>
+        <button id="btn-run-ai-audit" class="btn btn-gold w-100">✨ AI Security Scanner (One-Click Audit)</button>
+        <div id="ai-loading" class="spinner-area hidden">
+          <div class="loki-spinner"></div>
+          <span>Gemini AI tahlil qilmoqda...</span>
+        </div>
+        <div id="ai-output" class="output-panel hidden"></div>
+      </div>
+    </div>
+
+    <!-- 6. CLIENT DATA & JWT ANALYZER -->
+    <div class="tool-category" data-category="jwt-editor">
+      <div class="category-header">
+        <div class="cat-title">
+          <span class="cat-icon">🔑</span>
+          <span>JWT DEBUGGER & ANALYZER</span>
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="category-content">
+        <textarea id="jwt-input" class="loki-textarea code-font" placeholder="JWT tokenni bu yerga joylashtiring (ey...)"></textarea>
+        <div class="sub-actions">
+          <button id="btn-decode-jwt" class="btn btn-emerald">🔓 Decode & Inspect</button>
+          <button id="btn-sample-jwt" class="btn btn-dark">Misol token</button>
+        </div>
+        <div id="jwt-output" class="output-panel hidden"></div>
+      </div>
+    </div>
+
+    <!-- 7. UTILITIES & ENCODER/DECODER -->
+    <div class="tool-category" data-category="utilities">
+      <div class="category-header">
+        <div class="cat-title">
+          <span class="cat-icon">🔧</span>
+          <span>UTILITIES (ENCODER / DECODER)</span>
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="category-content">
+        <textarea id="util-input" class="loki-textarea code-font" placeholder="Matn yoki kod kiriting..."></textarea>
+        <div class="button-grid">
+          <button id="btn-b64-enc" class="btn btn-dark">B64 Enc</button>
+          <button id="btn-b64-dec" class="btn btn-dark">B64 Dec</button>
+          <button id="btn-url-enc" class="btn btn-dark">URL Enc</button>
+          <button id="btn-url-dec" class="btn btn-dark">URL Dec</button>
+          <button id="btn-hex-enc" class="btn btn-dark">Hex Enc</button>
+          <button id="btn-hex-dec" class="btn btn-dark">Hex Dec</button>
+        </div>
+        <div id="util-output" class="output-panel hidden"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-bar">
+    <span>Powered by <span class="highlight-green">LokiSec Engine</span></span>
+    <span class="status-indicator">● Active</span>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
